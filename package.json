@@ -1,14 +1,21 @@
 {
-  "name": "books",
+  "name": "reading-list",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "check": "npm run typecheck && vite build"
   },
   "devDependencies": {
+    "@types/three": "^0.185.1",
+    "typescript": "^7.0.2",
     "vite": "^8.1.1"
+  },
+  "dependencies": {
+    "three": "^0.185.1"
   }
 }
