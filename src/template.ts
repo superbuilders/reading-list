@@ -1,16 +1,69 @@
-const bookIcon = `
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M5.5 4.5h8a3 3 0 0 1 3 3v12h-8a3 3 0 0 0-3 1.5V4.5Z" />
-    <path d="M18.5 6.5h-2v13h2V6.5Z" />
-  </svg>
-`;
+import { stripePressBooks } from "./catalog";
 
 export function renderApp(root: HTMLElement): void {
+  const library = [
+    { title: "The Psychology of Money" },
+    { title: "The Alchemist" },
+    { title: "Born a Crime" },
+    ...stripePressBooks,
+  ];
+  const total = String(library.length).padStart(2, "0");
+  const shelfTicks = library
+    .map(
+      (book, index) => `
+        <button type="button" data-shelf-index="${index}" aria-label="Browse to ${book.title}"${index === 3 ? ' aria-current="true"' : ""}><span></span></button>`,
+    )
+    .join("");
   root.innerHTML = `
     <div class="hero-word" aria-hidden="true"><span>Reading</span></div>
     <div class="hero-note">
       <span class="eyebrow">A considered shelf</span>
-      <p>Three books worth reading—and returning to.</p>
+      <p>A growing library worth reading—and returning to.</p>
+    </div>
+
+    <div class="shelf-masthead" aria-hidden="true">
+      <div>
+        <span>The Reading List</span>
+        <i></i>
+        <span>An interactive library</span>
+      </div>
+      <div class="shelf-edition">
+        <span>${total} volumes</span>
+        <span>01 considered shelf</span>
+      </div>
+    </div>
+
+    <section class="browse-caption" aria-live="polite">
+      <p class="browse-position">
+        <span id="browseCurrent">04</span>
+        <i></i>
+        <span>${total}</span>
+      </p>
+      <h1 id="browseTitle">Maintenance</h1>
+      <p class="browse-author" id="browseAuthor">Stewart Brand</p>
+      <button type="button" class="inspect-volume" data-inspect-active>
+        <span>Inspect volume</span>
+        <span aria-hidden="true">↗</span>
+      </button>
+    </section>
+
+    <button type="button" class="shelf-arrow shelf-arrow-left" data-browse-previous aria-label="Previous book">
+      <span aria-hidden="true">←</span>
+    </button>
+    <button type="button" class="shelf-arrow shelf-arrow-right" data-browse-next aria-label="Next book">
+      <span aria-hidden="true">→</span>
+    </button>
+
+    <div class="shelf-furniture" aria-hidden="true">
+      <div class="shelf-surface"></div>
+      <div class="shelf-edge"></div>
+      <div class="shelf-shadow"></div>
+    </div>
+
+    <div class="shelf-ruler" style="--book-count: ${library.length}" aria-label="Browse the ${library.length}-book shelf">
+      <div class="shelf-ruler-line"></div>
+      ${shelfTicks}
+      <p aria-hidden="true">Hover · drag · arrow keys</p>
     </div>
 
     <canvas id="gl"></canvas>
@@ -18,37 +71,33 @@ export function renderApp(root: HTMLElement): void {
     <nav class="dock" aria-label="Reading list navigation">
       <div class="dock-shell">
         <button class="dock-item dock-home" type="button" data-dock-home aria-label="Return to the full reading list">
-          <span class="dock-brand" aria-hidden="true">R</span>
-          <span class="dock-tooltip" role="tooltip">Reading list</span>
+          <svg class="home-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m4 10.5 8-6.5 8 6.5" />
+            <path d="M6.5 9.5V20h11V9.5" />
+            <path d="M10 20v-6h4v6" />
+          </svg>
+          <span class="dock-tooltip" role="tooltip">Return to shelf</span>
         </button>
         <span class="dock-separator" aria-hidden="true"></span>
-        <button class="dock-item" type="button" data-book-index="0" aria-label="Open The Psychology of Money">
-          ${bookIcon}
-          <span class="dock-index" aria-hidden="true">1</span>
-          <span class="dock-tooltip" role="tooltip">Psychology of Money</span>
-        </button>
-        <button class="dock-item" type="button" data-book-index="1" aria-label="Open The Alchemist">
-          ${bookIcon}
-          <span class="dock-index" aria-hidden="true">2</span>
-          <span class="dock-tooltip" role="tooltip">The Alchemist</span>
-        </button>
-        <button class="dock-item" type="button" data-book-index="2" aria-label="Open Born a Crime">
-          ${bookIcon}
-          <span class="dock-index" aria-hidden="true">3</span>
-          <span class="dock-tooltip" role="tooltip">Born a Crime</span>
-        </button>
+        <span class="dock-key-hint">
+          <button type="button" data-browse-previous aria-label="Browse to the previous book">←</button>
+          <span>Browse</span>
+          <button type="button" data-browse-next aria-label="Browse to the next book">→</button>
+        </span>
         <span class="dock-separator" aria-hidden="true"></span>
         <a
-          class="dock-item"
-          href="https://github.com/Superbuilders/reading-list"
+          class="dock-item dock-alpha"
+          href="https://alpha.school/"
           target="_blank"
           rel="noreferrer"
-          aria-label="View the Reading List source on GitHub"
+          aria-label="Visit Alpha School"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 2.8a9.4 9.4 0 0 0-3 18.3c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .8.1-.7.4-1.1.7-1.3-2.3-.3-4.7-1.1-4.7-5a3.9 3.9 0 0 1 1-2.7 3.6 3.6 0 0 1 .1-2.7s.9-.3 2.8 1a9.7 9.7 0 0 1 5.1 0c2-1.3 2.8-1 2.8-1a3.6 3.6 0 0 1 .1 2.7 3.9 3.9 0 0 1 1 2.7c0 3.9-2.4 4.7-4.7 5 .4.3.7.9.7 1.9v2.7c0 .3.2.6.7.5A9.4 9.4 0 0 0 12 2.8Z" />
-          </svg>
-          <span class="dock-tooltip" role="tooltip">View source</span>
+          <img
+            class="alpha-logo-icon"
+            src="https://alpha.school/wp-content/uploads/2024/04/cropped-2hr-Logos-All_2hr-Learning-Logo-Alpha-192x192.webp"
+            alt=""
+          />
+          <span class="dock-tooltip" role="tooltip">Alpha School</span>
         </a>
       </div>
     </nav>
@@ -62,7 +111,7 @@ export function renderApp(root: HTMLElement): void {
       <div class="meta">
         <div class="stars" id="dpStars"></div>
         <div class="sep"></div>
-        <div class="src">Goodreads</div>
+        <div class="src" id="dpSource">Goodreads</div>
         <div class="year" id="dpYear"></div>
       </div>
       <div class="rule"></div>

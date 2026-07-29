@@ -1,6 +1,7 @@
 // The WebGL engine is isolated while its dynamic geometry is incrementally typed.
 // @ts-nocheck
 import * as THREE from "three";
+import { stripePressBooks } from "./catalog";
 
 /* =========================================================================
    0. Small utilities
@@ -722,7 +723,9 @@ function paintSpine(x, w, h, cfg) {
   x.rotate(Math.PI / 2);
   x.fillStyle = cfg.spineInk;
   x.font = cfg.spineFont;
-  drawSpaced(x, cfg.title.toUpperCase(), -h * 0.1, 15, 6);
+  const spineTitle = (cfg.shortTitle || cfg.title).toUpperCase();
+  x.font = cfg.spineFont || `${Math.max(24, 43 - spineTitle.length * 0.35)}px Georgia`;
+  drawSpaced(x, spineTitle, -h * 0.1, 15, 4);
   x.globalAlpha = 0.85;
   x.font = "600 25px Arial";
   drawSpaced(x, cfg.author.toUpperCase(), h * 0.325, 9, 4);
@@ -789,6 +792,88 @@ const BOOKS = [
       "https://m.media-amazon.com/images/I/81fh8hPklHL._AC_UF1000,1000_QL80_.jpg",
   },
 ];
+
+function wrapCoverText(x, text, maxWidth) {
+  const words = text.split(/\s+/);
+  const lines = [];
+  let line = "";
+  words.forEach((word) => {
+    const candidate = line ? `${line} ${word}` : word;
+    if (line && x.measureText(candidate).width > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  });
+  if (line) lines.push(line);
+  return lines;
+}
+
+function paintStripePress(x, w, h, cfg) {
+  x.fillStyle = cfg.cover;
+  x.fillRect(0, 0, w, h);
+  x.strokeStyle = cfg.accent;
+  x.lineWidth = 7;
+  x.strokeRect(54, 54, w - 108, h - 108);
+  x.lineWidth = 2;
+  x.strokeRect(72, 72, w - 144, h - 144);
+
+  x.fillStyle = cfg.ink;
+  x.font = "700 24px Arial";
+  drawSpaced(x, "STRIPE PRESS", w / 2, 128, 7);
+
+  x.textAlign = "left";
+  x.font = "700 78px Georgia";
+  const lines = wrapCoverText(x, cfg.title, w - 180);
+  lines.slice(0, 4).forEach((line, index) => {
+    x.fillText(line, 90, 275 + index * 88);
+  });
+  x.font = "600 28px Arial";
+  x.fillText(cfg.author, 92, 310 + Math.min(lines.length, 4) * 88);
+
+  x.strokeStyle = cfg.accent;
+  x.globalAlpha = 0.82;
+  x.lineWidth = 4;
+  for (let ring = 0; ring < 5; ring++) {
+    x.beginPath();
+    const radius = 110 + ring * 42;
+    x.ellipse(
+      w / 2 + Math.sin(ring * 1.9) * 48,
+      h * 0.69 + Math.cos(ring * 1.4) * 34,
+      radius,
+      radius * (0.48 + ring * 0.04),
+      ring * 0.35,
+      0,
+      Math.PI * 2,
+    );
+    x.stroke();
+  }
+  x.globalAlpha = 1;
+  x.fillStyle = cfg.ink;
+  x.font = "700 20px Arial";
+  drawSpaced(x, "A CONSIDERED EDITION", w / 2, h - 105, 5);
+}
+
+stripePressBooks.forEach((book) => {
+  BOOKS.push({
+    id: book.id,
+    title: book.title,
+    shortTitle: book.shortTitle,
+    author: book.author,
+    year: book.year,
+    stars: 5,
+    desc: book.description,
+    front: (x, w, h) => paintStripePress(x, w, h, book),
+    edge: book.ink,
+    backBg: book.cover,
+    backInk: "245,238,222",
+    spineBg: book.cover,
+    spineInk: book.ink,
+    coverURL: null,
+    productURL: book.url,
+  });
+});
 
 /* =========================================================================
    4. Book construction
@@ -1184,6 +1269,38 @@ const state = {
   kbIndex: -1,
 };
 const SLOTS = { hero: [], detail: null, portrait: false };
+let shelfActiveIndex = 3;
+
+function shelfSlots(activeIndex, portrait) {
+  const selected = portrait
+    ? { p: [0, -0.34, 0.72], r: [-0.035, -0.08, -0.015], s: 1.44 }
+    : { p: [-0.15, -0.22, 0.76], r: [-0.025, -0.08, -0.01], s: 1.44 };
+
+  return books.map((book, index) => {
+    if (index === activeIndex) return selected;
+
+    const side = index < activeIndex ? -1 : 1;
+    const distance = Math.abs(index - activeIndex);
+
+    if (portrait) {
+      return {
+        p: [side * (1.34 + (distance - 1) * 0.42), -0.62, -0.018 * distance],
+        r: [-0.015, 1.36, side * -0.025],
+        s: 1.2,
+      };
+    }
+
+    return {
+      p: [
+        side * (1.4 + (distance - 1) * 0.44),
+        -0.54,
+        -0.012 * distance,
+      ],
+      r: [-0.015, 1.43, side * -0.018],
+      s: 1.22,
+    };
+  });
+}
 
 function computeSlots() {
   const a = window.innerWidth / Math.max(1, window.innerHeight);
@@ -1192,18 +1309,8 @@ function computeSlots() {
   bookRoot.position.y = -(1 - fit) * 0.55;
   SLOTS.portrait = a < 0.85;
 
-  /* hero: tight fan, center book dominant, tops at ~30vh / ~53vh like the reference */
-  SLOTS.hero = SLOTS.portrait
-    ? [
-        { p: [-1.36, -1.0, -0.12], r: [-0.045, 0.4, 0.185], s: 1.39 },
-        { p: [0.2, -0.45, 0.6], r: [-0.05, -0.1, -0.035], s: 1.52 },
-        { p: [1.62, -1.1, -0.34], r: [-0.045, -0.42, -0.17], s: 1.39 },
-      ]
-    : [
-        { p: [-2.06, -1.23, -0.12], r: [-0.045, 0.4, 0.185], s: 1.39 },
-        { p: [0.3, -1.08, 0.6], r: [-0.05, -0.1, -0.035], s: 1.52 },
-        { p: [2.45, -1.41, -0.34], r: [-0.045, -0.42, -0.17], s: 1.39 },
-      ];
+  /* Browsing presents one cover while the remaining volumes sit as spines. */
+  SLOTS.hero = shelfSlots(shelfActiveIndex, SLOTS.portrait);
 
   if (SLOTS.portrait) {
     /* center the book in the region between the nav and the info sheet */
@@ -1364,7 +1471,7 @@ function camTo(mode) {
     lookY.t = SLOTS.portrait ? 0 : 0.15;
   } else {
     camX.t = 0;
-    camZ.t = 9.6;
+    camZ.t = 11.15;
     lookX.t = 0;
     lookY.t = 0;
   }
@@ -1375,16 +1482,21 @@ const dpTitle = document.getElementById("dpTitle");
 const dpDesc = document.getElementById("dpDesc");
 const dpStars = document.getElementById("dpStars");
 const dpYear = document.getElementById("dpYear");
+const dpSource = document.getElementById("dpSource");
 const bookLink = document.getElementById("bookLink");
 const audioLink = document.getElementById("audioLink");
 const STAR =
   '<svg viewBox="0 0 24 24" class="CLS"><path d="M12 2.6l2.8 6 6.6.6-5 4.4 1.5 6.5L12 16.7 6.1 20.1l1.5-6.5-5-4.4 6.6-.6z"/></svg>';
 function populatePanel(cfg) {
   dpTitle.textContent = cfg.title;
+  dpTitle.classList.toggle("long-title", cfg.title.length > 28);
   dpDesc.textContent = cfg.desc;
   dpYear.textContent = cfg.year;
+  dpSource.textContent = cfg.productURL ? "Stripe Press" : "Goodreads";
   const query = encodeURIComponent(`${cfg.title} ${cfg.author}`);
-  bookLink.href = `https://www.google.com/search?tbm=bks&q=${query}`;
+  bookLink.href =
+    cfg.productURL || `https://www.google.com/search?tbm=bks&q=${query}`;
+  bookLink.textContent = cfg.productURL ? "View at Stripe" : "Find the book";
   bookLink.setAttribute("aria-label", `Find ${cfg.title} by ${cfg.author}`);
   audioLink.href = `https://www.audible.com/search?keywords=${query}`;
   audioLink.setAttribute(
@@ -1409,6 +1521,7 @@ function hidePill() {
 
 function open(book) {
   if (state.mode !== "hero" || !book) return;
+  shelfActiveIndex = book.index;
   document.querySelectorAll("[data-book-index]").forEach((item) => {
     item.toggleAttribute(
       "aria-current",
@@ -1489,6 +1602,37 @@ function close() {
 }
 
 document.getElementById("closeBtn").addEventListener("click", close);
+
+function selectShelfBook(index) {
+  if (state.mode !== "hero" || !books[index]) return;
+  shelfActiveIndex = index;
+  state.pillLock = books[index];
+  state.kbIndex = index;
+  document.querySelectorAll("[data-book-index]").forEach((item) => {
+    const isCurrent =
+      Number(item.getAttribute("data-book-index")) === shelfActiveIndex;
+    item.toggleAttribute("aria-current", isCurrent);
+    if (isCurrent) {
+      item.scrollIntoView({
+        behavior: RM ? "auto" : "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  });
+  computeSlots();
+  applyMode();
+  window.dispatchEvent(
+    new CustomEvent("reading-list:active-book", {
+      detail: { index },
+    }),
+  );
+}
+
+window.addEventListener("reading-list:browse-book", (event) => {
+  const index = Number(event.detail?.index);
+  selectShelfBook(index);
+});
 window.addEventListener("reading-list:open-book", (event) => {
   const index = Number(event.detail?.index);
   const book = books[index];
@@ -1651,16 +1795,31 @@ canvas.addEventListener("lostpointercapture", cancelPointer);
 
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") close();
+  if (
+    state.mode === "detail" &&
+    (e.key === "ArrowRight" || e.key === "ArrowLeft")
+  ) {
+    const direction = e.key === "ArrowRight" ? 1 : -1;
+    const index = clamp(
+      state.selected.index + direction,
+      0,
+      books.length - 1,
+    );
+    if (index !== state.selected.index) {
+      window.dispatchEvent(
+        new CustomEvent("reading-list:open-book", { detail: { index } }),
+      );
+    }
+    e.preventDefault();
+    return;
+  }
   if (state.mode !== "hero") return;
   if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
     const d = e.key === "ArrowRight" ? 1 : -1;
-    state.kbIndex =
-      ((state.kbIndex < 0 ? (d > 0 ? -1 : 1) : state.kbIndex) + d + 3) %
-      3;
-    state.pillLock = null;
+    selectShelfBook(clamp(shelfActiveIndex + d, 0, books.length - 1));
     e.preventDefault();
   }
-  if (e.key === "Enter" && state.hovered) open(state.hovered);
+  if (e.key === "Enter") open(books[shelfActiveIndex]);
 });
 
 function castRay() {
@@ -1681,6 +1840,7 @@ function castRay() {
 const timer = new THREE.Timer();
 timer.connect(document);
 const idle = RM ? 0 : 1;
+let reportedActiveIndex = 1;
 
 function screenPos(b) {
   b.root.getWorldPosition(tmpV).project(camera);
@@ -1865,6 +2025,17 @@ function animate(timestamp) {
     hov = rayBook === state.selected ? rayBook : null;
   }
   state.hovered = hov;
+  if (state.mode === "hero") {
+    const activeIndex = shelfActiveIndex;
+    if (activeIndex !== reportedActiveIndex) {
+      reportedActiveIndex = activeIndex;
+      window.dispatchEvent(
+        new CustomEvent("reading-list:active-book", {
+          detail: { index: activeIndex },
+        }),
+      );
+    }
+  }
   let cur = "default";
   if (state.mode === "hero" && hov) cur = "pointer";
   else if (state.mode === "detail" && state.selected) {
