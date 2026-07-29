@@ -1,3 +1,82 @@
+const bookIcon = `
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M5.5 4.5h8a3 3 0 0 1 3 3v12h-8a3 3 0 0 0-3 1.5V4.5Z" />
+    <path d="M18.5 6.5h-2v13h2V6.5Z" />
+  </svg>
+`;
+
 export function renderApp(root: HTMLElement): void {
-  root.innerHTML = "<div class=\"hero-word\" aria-hidden=\"true\"><span>Reading</span></div>\n<div class=\"hero-note\">\n  <span class=\"eyebrow\">A considered shelf</span>\n  <p>Three books worth reading—and returning to.</p>\n</div>\n\n<canvas id=\"gl\"></canvas>\n\n<nav>\n  <div class=\"brand\">\n    <span class=\"brand-mark\" aria-hidden=\"true\">R</span>\n    <span>Reading List</span>\n  </div>\n  <div class=\"nav-r\">\n    <span class=\"collection-count\">3 selected books</span>\n  </div>\n</nav>\n\n<button id=\"openBtn\">Explore book</button>\n<button id=\"closeBtn\" aria-label=\"Close detail view\">&#10005;</button>\n\n<div class=\"dp\" id=\"dp\" aria-live=\"polite\">\n  <h1 id=\"dpTitle\"></h1>\n  <p id=\"dpDesc\"></p>\n  <div class=\"meta\">\n    <div class=\"stars\" id=\"dpStars\"></div>\n    <div class=\"sep\"></div>\n    <div class=\"src\">Goodreads</div>\n    <div class=\"year\" id=\"dpYear\"></div>\n  </div>\n  <div class=\"rule\"></div>\n  <div class=\"actions\">\n    <span class=\"pill lang\">\n      <svg\n        viewBox=\"0 0 24 24\"\n        fill=\"none\"\n        stroke=\"currentColor\"\n        stroke-width=\"1.7\"\n      >\n        <circle cx=\"12\" cy=\"12\" r=\"9\" />\n        <path\n          d=\"M3 12h18M12 3c2.8 2.6 2.8 15.4 0 18M12 3c-2.8 2.6-2.8 15.4 0 18\"\n        />\n      </svg>\n      <span>English</span>\n    </span>\n    <a class=\"pill buy\" id=\"bookLink\" href=\"#\" target=\"_blank\" rel=\"noreferrer\"\n      >Find the book</a\n    >\n    <a\n      class=\"pill buy\"\n      id=\"audioLink\"\n      href=\"#\"\n      target=\"_blank\"\n      rel=\"noreferrer\"\n      >Find audiobook</a\n    >\n  </div>\n</div>\n";
+  root.innerHTML = `
+    <div class="hero-word" aria-hidden="true"><span>Reading</span></div>
+    <div class="hero-note">
+      <span class="eyebrow">A considered shelf</span>
+      <p>Three books worth reading—and returning to.</p>
+    </div>
+
+    <canvas id="gl"></canvas>
+
+    <nav class="dock" aria-label="Reading list navigation">
+      <div class="dock-shell">
+        <button class="dock-item dock-home" type="button" data-dock-home aria-label="Return to the full reading list">
+          <span class="dock-brand" aria-hidden="true">R</span>
+          <span class="dock-tooltip" role="tooltip">Reading list</span>
+        </button>
+        <span class="dock-separator" aria-hidden="true"></span>
+        <button class="dock-item" type="button" data-book-index="0" aria-label="Open The Psychology of Money">
+          ${bookIcon}
+          <span class="dock-index" aria-hidden="true">1</span>
+          <span class="dock-tooltip" role="tooltip">Psychology of Money</span>
+        </button>
+        <button class="dock-item" type="button" data-book-index="1" aria-label="Open The Alchemist">
+          ${bookIcon}
+          <span class="dock-index" aria-hidden="true">2</span>
+          <span class="dock-tooltip" role="tooltip">The Alchemist</span>
+        </button>
+        <button class="dock-item" type="button" data-book-index="2" aria-label="Open Born a Crime">
+          ${bookIcon}
+          <span class="dock-index" aria-hidden="true">3</span>
+          <span class="dock-tooltip" role="tooltip">Born a Crime</span>
+        </button>
+        <span class="dock-separator" aria-hidden="true"></span>
+        <a
+          class="dock-item"
+          href="https://github.com/Superbuilders/reading-list"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="View the Reading List source on GitHub"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2.8a9.4 9.4 0 0 0-3 18.3c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .8.1-.7.4-1.1.7-1.3-2.3-.3-4.7-1.1-4.7-5a3.9 3.9 0 0 1 1-2.7 3.6 3.6 0 0 1 .1-2.7s.9-.3 2.8 1a9.7 9.7 0 0 1 5.1 0c2-1.3 2.8-1 2.8-1a3.6 3.6 0 0 1 .1 2.7 3.9 3.9 0 0 1 1 2.7c0 3.9-2.4 4.7-4.7 5 .4.3.7.9.7 1.9v2.7c0 .3.2.6.7.5A9.4 9.4 0 0 0 12 2.8Z" />
+          </svg>
+          <span class="dock-tooltip" role="tooltip">View source</span>
+        </a>
+      </div>
+    </nav>
+
+    <button id="openBtn">Explore book</button>
+    <button id="closeBtn" aria-label="Close detail view">&#10005;</button>
+
+    <div class="dp" id="dp" aria-live="polite">
+      <h1 id="dpTitle"></h1>
+      <p id="dpDesc"></p>
+      <div class="meta">
+        <div class="stars" id="dpStars"></div>
+        <div class="sep"></div>
+        <div class="src">Goodreads</div>
+        <div class="year" id="dpYear"></div>
+      </div>
+      <div class="rule"></div>
+      <div class="actions">
+        <span class="pill lang">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M3 12h18M12 3c2.8 2.6 2.8 15.4 0 18M12 3c-2.8 2.6-2.8 15.4 0 18" />
+          </svg>
+          <span>English</span>
+        </span>
+        <a class="pill buy" id="bookLink" href="#" target="_blank" rel="noreferrer">Find the book</a>
+        <a class="pill buy" id="audioLink" href="#" target="_blank" rel="noreferrer">Find audiobook</a>
+      </div>
+    </div>
+  `;
 }

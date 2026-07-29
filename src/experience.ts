@@ -1409,6 +1409,12 @@ function hidePill() {
 
 function open(book) {
   if (state.mode !== "hero" || !book) return;
+  document.querySelectorAll("[data-book-index]").forEach((item) => {
+    item.toggleAttribute(
+      "aria-current",
+      Number(item.getAttribute("data-book-index")) === book.index,
+    );
+  });
   state.mode = "opening";
   state.selected = book;
   state.pillLock = null;
@@ -1449,6 +1455,9 @@ function open(book) {
 
 function close() {
   if (state.mode !== "detail") return;
+  document.querySelectorAll("[data-book-index]").forEach((item) => {
+    item.removeAttribute("aria-current");
+  });
   state.mode = "closing";
   document.body.classList.remove("detail-open");
   leaves.deactivate();
@@ -1480,6 +1489,23 @@ function close() {
 }
 
 document.getElementById("closeBtn").addEventListener("click", close);
+window.addEventListener("reading-list:open-book", (event) => {
+  const index = Number(event.detail?.index);
+  const book = books[index];
+  if (!book) return;
+
+  if (state.mode === "hero") {
+    open(book);
+    return;
+  }
+
+  if (state.mode === "detail" && state.selected !== book) {
+    close();
+    setTimeout(() => {
+      if (state.mode === "hero") open(book);
+    }, 1650);
+  }
+});
 /* the slip is never a hit target — clicking the book under it opens it,
    which is also what keeps it able to follow the cursor */
 

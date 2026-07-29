@@ -1,4 +1,5 @@
 import "./style.css";
+import { initializeDock } from "./dock";
 import { renderApp } from "./template";
 
 const root = document.querySelector<HTMLElement>("#app");
@@ -8,5 +9,6 @@ if (!root) {
 }
 
 renderApp(root);
+initializeDock();
 
 await import("./experience");
