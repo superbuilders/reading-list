@@ -6,7 +6,18 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Books</title>
+    <meta
+      name="description"
+      content="A short, considered reading list of books worth returning to."
+    />
+    <meta name="theme-color" content="#f5f4fb" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap"
+      rel="stylesheet"
+    />
+    <title>Reading List</title>
     <!--
   Interactive 3D book showcase. Single file, no build step.
 
@@ -19,11 +30,23 @@
 -->
     <style>
       :root {
-        --navy: #141a32;
-        --pink: #f591ac;
-        --cream: #fdfbf4;
-        --lav: #c9d0ee;
-        --peri: #96a2de;
+        --alpha-blue: #1e00ff;
+        --alpha-blue-dark: #1600c8;
+        --indigo: #0d0050;
+        --indigo-soft: #3c326d;
+        --paper: #f5f4fb;
+        --paper-raised: #fdfcff;
+        --lavender: #e5e3f5;
+        --lavender-strong: #d4d0ed;
+        --cyan: #06b6d4;
+        --success: #087a56;
+        --shadow-sm: 0 10px 30px oklch(32% 0.06 285 / 0.09);
+        --shadow-lg: 0 30px 80px oklch(25% 0.08 285 / 0.16);
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-state: cubic-bezier(0.65, 0, 0.35, 1);
+        --sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        --serif: "Newsreader", Georgia, serif;
       }
       * {
         box-sizing: border-box;
@@ -36,16 +59,17 @@
       body {
         margin: 0;
         overflow: hidden;
-        background: radial-gradient(
-          120% 100% at 50% 0%,
-          #1b2246 0%,
-          #141a33 55%,
-          #0f142a 100%
-        );
-        color: #fff;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
-          Arial, sans-serif;
+        background:
+          radial-gradient(
+            70% 70% at 76% 28%,
+            oklch(97% 0.025 275) 0%,
+            transparent 72%
+          ),
+          linear-gradient(145deg, #fbfaff 0%, var(--paper) 55%, #efedf9 100%);
+        color: var(--indigo);
+        font-family: var(--sans);
+        font-kerning: normal;
+        -webkit-font-smoothing: antialiased;
       }
       button {
         font-family: inherit;
@@ -53,14 +77,14 @@
         border: 0;
       }
       button:focus-visible {
-        outline: 2px solid var(--pink);
+        outline: 3px solid var(--alpha-blue);
         outline-offset: 3px;
       }
 
       /* ---------- hero word ---------- */
       .hero-word {
         position: fixed;
-        top: 18vh;
+        top: 16vh;
         left: 50%;
         transform: translateX(-50%);
         z-index: 1;
@@ -73,17 +97,19 @@
       .hero-word span {
         display: block;
         white-space: nowrap;
-        font-size: min(22.5vw, 45vh);
-        font-weight: 800;
-        letter-spacing: -0.015em;
-        line-height: 0.85;
-        color: var(--pink);
-        animation: heroIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+        font-family: var(--serif);
+        font-size: min(20vw, 41vh);
+        font-style: italic;
+        font-weight: 500;
+        letter-spacing: -0.055em;
+        line-height: 0.82;
+        color: var(--alpha-blue);
+        animation: heroIn 800ms var(--ease-out) 100ms both;
       }
       @keyframes heroIn {
         from {
           opacity: 0;
-          transform: translateY(60px);
+          transform: translateY(36px);
         }
         to {
           opacity: 1;
@@ -93,7 +119,41 @@
       body.detail-open .hero-word,
       body.transit .hero-word {
         opacity: 0;
-        transform: translateX(-50%) translateY(-44px);
+        transform: translateX(-50%) translateY(-28px);
+      }
+
+      .hero-note {
+        position: fixed;
+        left: clamp(24px, 4vw, 64px);
+        bottom: clamp(24px, 5vh, 56px);
+        z-index: 5;
+        display: grid;
+        gap: 8px;
+        max-width: 320px;
+        pointer-events: none;
+        transition:
+          opacity 300ms var(--ease-state),
+          transform 300ms var(--ease-state);
+      }
+      .hero-note .eyebrow {
+        color: var(--alpha-blue);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .hero-note p {
+        margin: 0;
+        color: var(--indigo-soft);
+        font-family: var(--serif);
+        font-size: clamp(1.2rem, 2vw, 1.65rem);
+        font-style: italic;
+        line-height: 1.15;
+      }
+      body.detail-open .hero-note,
+      body.transit .hero-note {
+        opacity: 0;
+        transform: translateY(12px);
       }
 
       /* ---------- canvas ---------- */
@@ -108,53 +168,69 @@
       /* ---------- nav ---------- */
       nav {
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
+        top: max(20px, env(safe-area-inset-top));
+        left: 50%;
+        transform: translateX(-50%);
         z-index: 40;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 26px 42px;
+        width: min(1120px, calc(100vw - 40px));
+        min-height: 64px;
+        padding: 8px 10px 8px 22px;
+        border: 1px solid var(--lavender);
+        border-radius: 999px;
+        background: var(--paper-raised);
+        box-shadow: var(--shadow-sm);
         pointer-events: none;
       }
       nav > * {
         pointer-events: auto;
       }
-      .logo {
-        color: var(--pink);
-        font-weight: 800;
-        font-size: clamp(20px, 2.2vw, 29px);
-        letter-spacing: -0.01em;
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--indigo);
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: -0.02em;
+      }
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--alpha-blue);
+        color: white;
+        font-family: var(--serif);
+        font-size: 1.25rem;
+        font-style: italic;
       }
       .nav-r {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
       }
-      .menu-btn {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: var(--cream);
-        color: var(--navy);
-        font-size: 20px;
-        font-weight: 800;
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-      .cta {
-        height: 48px;
-        padding: 0 26px;
+      .collection-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 46px;
+        padding: 0 18px;
         border-radius: 999px;
-        background: var(--cream);
-        color: var(--navy);
+        background: var(--paper);
+        color: var(--indigo-soft);
+        font-size: 0.875rem;
         font-weight: 600;
-        font-size: 16px;
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
-      .menu-btn:hover,
-      .cta:hover {
-        transform: scale(1.05);
+      .collection-count::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--cyan);
       }
 
       /* ---------- open slip: a torn scrap of page that trails the cursor ----------
@@ -166,104 +242,62 @@
         left: 0;
         top: 0;
         z-index: 30;
-        padding: 16px 38px 18px;
-        border: 0;
-        border-radius: 0;
-        background:
-          repeating-linear-gradient(
-            92deg,
-            rgba(90, 74, 40, 0.03) 0 2px,
-            transparent 2px 6px
-          ),
-          radial-gradient(
-            125% 150% at 28% 0%,
-            #fffdf7 0%,
-            #f8f2e3 58%,
-            #ede4cf 100%
-          );
-        color: var(--navy);
-        font-size: 15px;
+        min-height: 48px;
+        padding: 0 24px;
+        border: 1px solid var(--alpha-blue);
+        border-radius: 999px;
+        background: var(--alpha-blue);
+        color: white;
+        font-size: 0.875rem;
         font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        clip-path: polygon(
-          0% 0.9%,
-          8.3% 0.8%,
-          16.7% 6.3%,
-          25% 3.8%,
-          33.3% 5.5%,
-          41.7% 2.7%,
-          50% 5.2%,
-          58.3% 0.4%,
-          66.7% 5.9%,
-          75% 6.5%,
-          83.3% 1%,
-          91.7% 6.4%,
-          100% 0.7%,
-          97.7% 20%,
-          97% 40%,
-          99.6% 60%,
-          98.7% 80%,
-          100% 96.5%,
-          91.7% 99.8%,
-          83.3% 95.6%,
-          75% 94.9%,
-          66.7% 96.6%,
-          58.3% 93.5%,
-          50% 97.9%,
-          41.7% 99.5%,
-          33.3% 93.2%,
-          25% 93.6%,
-          16.7% 93.2%,
-          8.3% 93.1%,
-          0% 93.5%,
-          0.2% 80%,
-          1.1% 60%,
-          3.9% 40%,
-          3.8% 20%
-        );
-        filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.16))
-          drop-shadow(0 14px 26px rgba(0, 0, 0, 0.4));
+        letter-spacing: 0.01em;
+        box-shadow: 0 12px 30px oklch(45% 0.28 275 / 0.25);
         opacity: 0;
         pointer-events: none;
-        transform: translate(-50%, -50%) rotate(-1.6deg) scale(0.94);
+        transform: translate(-50%, -50%) scale(0.94);
         transition:
-          opacity 0.24s ease,
-          transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+          opacity 200ms var(--ease-out),
+          transform 250ms var(--ease-out);
         will-change: transform, opacity, left, top;
       }
       #openBtn.on {
         opacity: 1;
-        transform: translate(-50%, -50%) rotate(-1.6deg) scale(1);
+        transform: translate(-50%, -50%) scale(1);
       }
 
       /* ---------- close button ---------- */
       #closeBtn {
         position: fixed;
-        top: 30px;
+        top: max(26px, env(safe-area-inset-top));
         left: 50%;
         transform: translateX(-50%);
         z-index: 40;
         width: 52px;
         height: 52px;
         border-radius: 50%;
-        background: transparent;
-        color: var(--cream);
-        border: 1.5px solid rgba(253, 251, 244, 0.4);
+        background: var(--paper-raised);
+        color: var(--indigo);
+        border: 1px solid var(--lavender-strong);
+        box-shadow: var(--shadow-sm);
         font-size: 17px;
         line-height: 1;
         opacity: 0;
         pointer-events: none;
         transition:
           opacity 0.4s ease 0.15s,
-          border-color 0.25s ease;
+          border-color 200ms var(--ease-state),
+          transform 200ms var(--ease-state);
       }
       #closeBtn:hover {
-        border-color: rgba(253, 251, 244, 0.9);
+        border-color: var(--alpha-blue);
+        transform: translateX(-50%) scale(1.04);
       }
       body.detail-open #closeBtn {
         opacity: 1;
         pointer-events: auto;
+      }
+      body.detail-open .collection-count {
+        opacity: 0;
       }
 
       /* ---------- detail panel ---------- */
@@ -275,6 +309,11 @@
         width: min(560px, 42vw);
         z-index: 15;
         pointer-events: none;
+        padding: clamp(28px, 3vw, 48px);
+        border: 1px solid var(--lavender);
+        border-radius: 36px;
+        background: var(--paper-raised);
+        box-shadow: var(--shadow-lg);
         visibility: hidden;
         transition: visibility 0s 0.5s;
       }
@@ -284,17 +323,17 @@
       }
       .dp > * {
         opacity: 0;
-        transform: translateY(28px);
+        transform: translateY(18px);
         transition:
-          opacity 0.28s ease,
-          transform 0.28s ease;
+          opacity 220ms var(--ease-state),
+          transform 220ms var(--ease-state);
       }
       body.detail-open .dp > * {
         opacity: 1;
         transform: none;
         transition:
-          opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-          transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+          opacity 500ms var(--ease-out),
+          transform 500ms var(--ease-out);
       }
       body.detail-open .dp > *:nth-child(1) {
         transition-delay: 0.05s;
@@ -314,17 +353,19 @@
 
       .dp h1 {
         margin: 0;
-        color: var(--pink);
-        font-size: clamp(52px, 5.6vw, 92px);
-        font-weight: 800;
-        line-height: 0.98;
-        letter-spacing: -0.015em;
+        color: var(--indigo);
+        font-family: var(--serif);
+        font-size: clamp(3rem, 5vw, 5.25rem);
+        font-style: italic;
+        font-weight: 500;
+        line-height: 0.94;
+        letter-spacing: -0.045em;
       }
       .dp p {
-        margin: 26px 0 0;
-        color: var(--lav);
-        font-size: clamp(16px, 1.25vw, 19px);
-        line-height: 1.65;
+        margin: 24px 0 0;
+        color: var(--indigo-soft);
+        font-size: clamp(1rem, 1.15vw, 1.125rem);
+        line-height: 1.6;
         font-weight: 400;
         max-width: 54ch;
       }
@@ -339,9 +380,9 @@
         gap: 5px;
       }
       .stars svg {
-        width: 25px;
-        height: 25px;
-        fill: var(--pink);
+        width: 22px;
+        height: 22px;
+        fill: var(--alpha-blue);
       }
       .stars svg.dim {
         opacity: 0.25;
@@ -349,63 +390,68 @@
       .sep {
         width: 1px;
         height: 24px;
-        background: rgba(200, 208, 240, 0.28);
+        background: var(--lavender-strong);
       }
       .src,
       .year {
-        color: #98a4d6;
-        font-style: italic;
-        font-size: 19px;
+        color: var(--indigo-soft);
+        font-size: 0.9375rem;
+        font-weight: 600;
       }
       .year {
         margin-left: auto;
       }
       .rule {
         margin-top: 26px;
-        border-top: 1px solid rgba(200, 208, 240, 0.18);
+        border-top: 1px solid var(--lavender);
       }
       .actions {
         margin-top: 32px;
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        background: #1a2140;
+        background: var(--paper);
+        border: 1px solid var(--lavender);
         border-radius: 999px;
-        padding: 10px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+        padding: 8px;
         pointer-events: auto;
       }
       .pill {
         height: 54px;
         padding: 0 26px;
         border-radius: 999px;
-        font-size: 16.5px;
+        border: 0;
+        font-family: var(--sans);
+        font-size: 0.9375rem;
         font-weight: 600;
         display: inline-flex;
         align-items: center;
         gap: 10px;
         transition:
-          transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-          filter 0.2s;
+          transform 180ms var(--ease-out),
+          background-color 180ms var(--ease-state);
+        text-decoration: none;
       }
       .pill:hover {
-        transform: scale(1.04);
-        filter: brightness(1.05);
+        transform: translateY(-2px);
       }
       .pill.lang {
-        background: var(--cream);
-        color: var(--navy);
+        background: var(--paper-raised);
+        color: var(--indigo-soft);
       }
       .pill.buy {
-        background: var(--peri);
-        color: #10152c;
+        background: var(--alpha-blue);
+        color: white;
+      }
+      .pill.buy:hover {
+        background: var(--alpha-blue-dark);
       }
       .pill.iconb {
         width: 54px;
         padding: 0;
         justify-content: center;
-        background: #242c50;
-        color: var(--lav);
+        background: var(--lavender);
+        color: var(--indigo);
       }
       .pill svg {
         width: 20px;
@@ -415,13 +461,32 @@
       /* ---------- portrait / small screens ---------- */
       @media (max-aspect-ratio: 17/20), (max-width: 760px) {
         nav {
-          padding: 18px 20px;
+          top: max(12px, env(safe-area-inset-top));
+          width: calc(100vw - 24px);
+          min-height: 56px;
+          padding: 6px 8px 6px 16px;
+        }
+        .brand-mark {
+          width: 30px;
+          height: 30px;
+        }
+        .collection-count {
+          min-height: 42px;
+          padding: 0 14px;
         }
         .hero-word {
-          top: 7vh;
+          top: 11vh;
         }
         .hero-word span {
-          font-size: 34vw;
+          font-size: 29vw;
+        }
+        .hero-note {
+          left: 20px;
+          right: 20px;
+          bottom: max(18px, env(safe-area-inset-bottom));
+        }
+        .hero-note p {
+          max-width: 22ch;
         }
         .dp {
           right: auto;
@@ -430,6 +495,8 @@
           bottom: 3.5vh;
           transform: translateX(-50%);
           width: min(560px, 92vw);
+          padding: 24px;
+          border-radius: 28px;
         }
         .dp h1 {
           font-size: clamp(36px, 9.5vw, 54px);
@@ -452,17 +519,29 @@
           margin-top: 18px;
           flex-wrap: wrap;
           border-radius: 28px;
+          width: 100%;
         }
         .pill {
           height: 48px;
           padding: 0 20px;
           font-size: 15px;
         }
+        .pill.buy {
+          flex: 1;
+          justify-content: center;
+        }
+        .pill.lang,
+        .pill.iconb {
+          display: none;
+        }
         #closeBtn {
           top: 18px;
           left: auto;
           right: 18px;
           transform: none;
+        }
+        #closeBtn:hover {
+          transform: scale(1.04);
         }
       }
 
@@ -482,26 +561,32 @@
         justify-content: center;
         text-align: center;
         padding: 40px;
-        color: var(--lav);
+        color: var(--indigo-soft);
         font-size: 18px;
         line-height: 1.6;
       }
     </style>
   </head>
   <body>
-    <div class="hero-word"><span>Books</span></div>
+    <div class="hero-word" aria-hidden="true"><span>Reading</span></div>
+    <div class="hero-note">
+      <span class="eyebrow">A considered shelf</span>
+      <p>Three books worth reading—and returning to.</p>
+    </div>
 
     <canvas id="gl"></canvas>
 
     <nav>
-      <div class="logo">Bestsellers</div>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">R</span>
+        <span>Reading List</span>
+      </div>
       <div class="nav-r">
-        <button class="menu-btn" aria-label="Menu">=</button>
-        <button class="cta">Get Tickets</button>
+        <span class="collection-count">3 selected books</span>
       </div>
     </nav>
 
-    <button id="openBtn">Open</button>
+    <button id="openBtn">Explore book</button>
     <button id="closeBtn" aria-label="Close detail view">&#10005;</button>
 
     <div class="dp" id="dp" aria-live="polite">
@@ -515,7 +600,7 @@
       </div>
       <div class="rule"></div>
       <div class="actions">
-        <button class="pill lang">
+        <span class="pill lang">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -528,19 +613,18 @@
             />
           </svg>
           <span>English</span>
-        </button>
-        <button class="pill buy">Buy Now</button>
-        <button class="pill buy">Buy Audiobook</button>
-        <button class="pill iconb" aria-label="Save">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.7"
-          >
-            <path d="M7 3h10v18l-5-4-5 4z" />
-          </svg>
-        </button>
+        </span>
+        <a class="pill buy" id="bookLink" href="#" target="_blank" rel="noreferrer"
+          >Find the book</a
+        >
+        <a
+          class="pill buy"
+          id="audioLink"
+          href="#"
+          target="_blank"
+          rel="noreferrer"
+          >Find audiobook</a
+        >
       </div>
     </div>
 
@@ -1919,12 +2003,22 @@
       const dpDesc = document.getElementById("dpDesc");
       const dpStars = document.getElementById("dpStars");
       const dpYear = document.getElementById("dpYear");
+      const bookLink = document.getElementById("bookLink");
+      const audioLink = document.getElementById("audioLink");
       const STAR =
         '<svg viewBox="0 0 24 24" class="CLS"><path d="M12 2.6l2.8 6 6.6.6-5 4.4 1.5 6.5L12 16.7 6.1 20.1l1.5-6.5-5-4.4 6.6-.6z"/></svg>';
       function populatePanel(cfg) {
         dpTitle.textContent = cfg.title;
         dpDesc.textContent = cfg.desc;
         dpYear.textContent = cfg.year;
+        const query = encodeURIComponent(`${cfg.title} ${cfg.author}`);
+        bookLink.href = `https://www.google.com/search?tbm=bks&q=${query}`;
+        bookLink.setAttribute("aria-label", `Find ${cfg.title} by ${cfg.author}`);
+        audioLink.href = `https://www.audible.com/search?keywords=${query}`;
+        audioLink.setAttribute(
+          "aria-label",
+          `Find the audiobook of ${cfg.title} by ${cfg.author}`,
+        );
         let s = "";
         for (let i = 0; i < 5; i++)
           s += STAR.replace("CLS", i < cfg.stars ? "" : "dim");
