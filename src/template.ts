@@ -1,12 +1,10 @@
-import { stripePressBooks } from "./catalog";
+import { alphaBookshelfKids } from "./catalog";
 
 export function renderApp(root: HTMLElement): void {
-  const library = [
-    { title: "The Psychology of Money" },
-    { title: "The Alchemist" },
-    { title: "Born a Crime" },
-    ...stripePressBooks,
-  ];
+  // The reading list is now sourced from the Alpha Bookshelf kids catalog.
+  // Placeholder titles (Psychology of Money / Alchemist / Born a Crime)
+  // have been removed — they were stand-ins for the real list.
+  const library = alphaBookshelfKids;
   const total = String(library.length).padStart(2, "0");
   const shelfTicks = library
     .map(

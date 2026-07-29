@@ -1492,11 +1492,11 @@ function populatePanel(cfg) {
   dpTitle.classList.toggle("long-title", cfg.title.length > 28);
   dpDesc.textContent = cfg.desc;
   dpYear.textContent = cfg.year;
-  dpSource.textContent = cfg.productURL ? "Stripe Press" : "Goodreads";
+  dpSource.textContent = cfg.productURL ? "Alpha Bookshelf" : "Goodreads";
   const query = encodeURIComponent(`${cfg.title} ${cfg.author}`);
   bookLink.href =
     cfg.productURL || `https://www.google.com/search?tbm=bks&q=${query}`;
-  bookLink.textContent = cfg.productURL ? "View at Stripe" : "Find the book";
+  bookLink.textContent = cfg.productURL ? "Open in Alpha Bookshelf" : "Find the book";
   bookLink.setAttribute("aria-label", `Find ${cfg.title} by ${cfg.author}`);
   audioLink.href = `https://www.audible.com/search?keywords=${query}`;
   audioLink.setAttribute(
