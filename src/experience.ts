@@ -1184,6 +1184,38 @@ const state = {
   kbIndex: -1,
 };
 const SLOTS = { hero: [], detail: null, portrait: false };
+let shelfActiveIndex = 1;
+
+function shelfSlots(activeIndex, portrait) {
+  const selected = portrait
+    ? { p: [0, -0.34, 0.72], r: [-0.035, -0.08, -0.015], s: 1.44 }
+    : { p: [-0.15, -0.22, 0.76], r: [-0.025, -0.08, -0.01], s: 1.44 };
+
+  return books.map((book, index) => {
+    if (index === activeIndex) return selected;
+
+    const side = index < activeIndex ? -1 : 1;
+    const distance = Math.abs(index - activeIndex);
+
+    if (portrait) {
+      return {
+        p: [side * (1.2 + (distance - 1) * 0.34), -0.62, -0.12 * distance],
+        r: [-0.015, 1.36, side * -0.025],
+        s: 1.26,
+      };
+    }
+
+    return {
+      p: [
+        side * (1.72 + (distance - 1) * 0.42),
+        -0.54,
+        -0.08 * distance,
+      ],
+      r: [-0.015, 1.43, side * -0.018],
+      s: 1.28,
+    };
+  });
+}
 
 function computeSlots() {
   const a = window.innerWidth / Math.max(1, window.innerHeight);
@@ -1192,18 +1224,8 @@ function computeSlots() {
   bookRoot.position.y = -(1 - fit) * 0.55;
   SLOTS.portrait = a < 0.85;
 
-  /* hero: tight fan, center book dominant, tops at ~30vh / ~53vh like the reference */
-  SLOTS.hero = SLOTS.portrait
-    ? [
-        { p: [-1.36, -1.0, -0.12], r: [-0.045, 0.4, 0.185], s: 1.39 },
-        { p: [0.2, -0.45, 0.6], r: [-0.05, -0.1, -0.035], s: 1.52 },
-        { p: [1.62, -1.1, -0.34], r: [-0.045, -0.42, -0.17], s: 1.39 },
-      ]
-    : [
-        { p: [-2.06, -0.58, -0.12], r: [-0.025, 0.34, 0.11], s: 1.34 },
-        { p: [0.3, -0.4, 0.6], r: [-0.035, -0.08, -0.02], s: 1.48 },
-        { p: [2.45, -0.7, -0.34], r: [-0.025, -0.36, -0.1], s: 1.34 },
-      ];
+  /* Browsing presents one cover while the remaining volumes sit as spines. */
+  SLOTS.hero = shelfSlots(shelfActiveIndex, SLOTS.portrait);
 
   if (SLOTS.portrait) {
     /* center the book in the region between the nav and the info sheet */
@@ -1409,6 +1431,7 @@ function hidePill() {
 
 function open(book) {
   if (state.mode !== "hero" || !book) return;
+  shelfActiveIndex = book.index;
   document.querySelectorAll("[data-book-index]").forEach((item) => {
     item.toggleAttribute(
       "aria-current",
@@ -1489,12 +1512,24 @@ function close() {
 }
 
 document.getElementById("closeBtn").addEventListener("click", close);
-window.addEventListener("reading-list:browse-book", (event) => {
-  if (state.mode !== "hero") return;
-  const index = Number(event.detail?.index);
-  if (!books[index]) return;
+
+function selectShelfBook(index) {
+  if (state.mode !== "hero" || !books[index]) return;
+  shelfActiveIndex = index;
   state.pillLock = books[index];
   state.kbIndex = index;
+  computeSlots();
+  applyMode();
+  window.dispatchEvent(
+    new CustomEvent("reading-list:active-book", {
+      detail: { index },
+    }),
+  );
+}
+
+window.addEventListener("reading-list:browse-book", (event) => {
+  const index = Number(event.detail?.index);
+  selectShelfBook(index);
 });
 window.addEventListener("reading-list:open-book", (event) => {
   const index = Number(event.detail?.index);
@@ -1661,13 +1696,10 @@ window.addEventListener("keydown", (e) => {
   if (state.mode !== "hero") return;
   if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
     const d = e.key === "ArrowRight" ? 1 : -1;
-    state.kbIndex =
-      ((state.kbIndex < 0 ? (d > 0 ? -1 : 1) : state.kbIndex) + d + 3) %
-      3;
-    state.pillLock = null;
+    selectShelfBook(clamp(shelfActiveIndex + d, 0, books.length - 1));
     e.preventDefault();
   }
-  if (e.key === "Enter" && state.hovered) open(state.hovered);
+  if (e.key === "Enter") open(books[shelfActiveIndex]);
 });
 
 function castRay() {
@@ -1874,7 +1906,7 @@ function animate(timestamp) {
   }
   state.hovered = hov;
   if (state.mode === "hero") {
-    const activeIndex = hov?.index ?? 1;
+    const activeIndex = shelfActiveIndex;
     if (activeIndex !== reportedActiveIndex) {
       reportedActiveIndex = activeIndex;
       window.dispatchEvent(
