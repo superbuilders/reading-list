@@ -1795,6 +1795,24 @@ canvas.addEventListener("lostpointercapture", cancelPointer);
 
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") close();
+  if (
+    state.mode === "detail" &&
+    (e.key === "ArrowRight" || e.key === "ArrowLeft")
+  ) {
+    const direction = e.key === "ArrowRight" ? 1 : -1;
+    const index = clamp(
+      state.selected.index + direction,
+      0,
+      books.length - 1,
+    );
+    if (index !== state.selected.index) {
+      window.dispatchEvent(
+        new CustomEvent("reading-list:open-book", { detail: { index } }),
+      );
+    }
+    e.preventDefault();
+    return;
+  }
   if (state.mode !== "hero") return;
   if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
     const d = e.key === "ArrowRight" ? 1 : -1;

@@ -1,12 +1,5 @@
 import { stripePressBooks } from "./catalog";
 
-const bookIcon = `
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M5.5 4.5h8a3 3 0 0 1 3 3v12h-8a3 3 0 0 0-3 1.5V4.5Z" />
-    <path d="M18.5 6.5h-2v13h2V6.5Z" />
-  </svg>
-`;
-
 export function renderApp(root: HTMLElement): void {
   const library = [
     { title: "The Psychology of Money" },
@@ -21,17 +14,6 @@ export function renderApp(root: HTMLElement): void {
         <button type="button" data-shelf-index="${index}" aria-label="Browse to ${book.title}"${index === 3 ? ' aria-current="true"' : ""}><span></span></button>`,
     )
     .join("");
-  const dockBooks = library
-    .map(
-      (book, index) => `
-        <button class="dock-item" type="button" data-book-index="${index}" aria-label="Open ${book.title}">
-          ${bookIcon}
-          <span class="dock-index" aria-hidden="true">${index + 1}</span>
-          <span class="dock-tooltip" role="tooltip">${book.title}</span>
-        </button>`,
-    )
-    .join("");
-
   root.innerHTML = `
     <div class="hero-word" aria-hidden="true"><span>Reading</span></div>
     <div class="hero-note">
@@ -93,7 +75,11 @@ export function renderApp(root: HTMLElement): void {
           <span class="dock-tooltip" role="tooltip">Reading list</span>
         </button>
         <span class="dock-separator" aria-hidden="true"></span>
-        ${dockBooks}
+        <span class="dock-key-hint" aria-hidden="true">
+          <kbd>←</kbd>
+          <span>Browse</span>
+          <kbd>→</kbd>
+        </span>
         <span class="dock-separator" aria-hidden="true"></span>
         <a
           class="dock-item"

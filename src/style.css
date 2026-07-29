@@ -399,13 +399,8 @@
         display: flex;
         align-items: flex-end;
         gap: 8px;
-        max-width: min(92vw, 1180px);
         min-height: 72px;
         padding: 10px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        overscroll-behavior-inline: contain;
-        scrollbar-width: none;
         border: 1px solid var(--lavender);
         border-radius: 26px;
         background: oklch(99% 0.008 285 / 0.94);
@@ -413,8 +408,31 @@
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
       }
-      .dock-shell::-webkit-scrollbar {
-        display: none;
+      .dock-key-hint {
+        display: flex;
+        align-items: center;
+        align-self: center;
+        gap: 8px;
+        padding: 0 4px;
+        color: var(--indigo-soft);
+        font-size: 0.625rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .dock-key-hint kbd {
+        display: grid;
+        place-items: center;
+        width: 27px;
+        height: 27px;
+        border: 1px solid var(--lavender-strong);
+        border-radius: 9px;
+        background: var(--paper);
+        color: var(--indigo);
+        font-family: var(--sans);
+        font-size: 0.75rem;
+        box-shadow: 0 2px 0 var(--lavender);
       }
       .dock-item {
         --dock-scale: 1;
@@ -789,10 +807,20 @@
           font-size: 0.875rem;
         }
         .inspect-volume,
-        .shelf-arrow,
         .shelf-furniture,
         .shelf-ruler {
           display: none;
+        }
+        .shelf-arrow {
+          top: 55%;
+          width: 40px;
+          height: 40px;
+        }
+        .shelf-arrow-left {
+          left: 10px;
+        }
+        .shelf-arrow-right {
+          right: 10px;
         }
         .dock {
           bottom: max(10px, env(safe-area-inset-bottom));
@@ -817,6 +845,13 @@
           height: 29px;
         }
         .dock-tooltip {
+          display: none;
+        }
+        .dock-key-hint {
+          gap: 5px;
+          padding-inline: 0;
+        }
+        .dock-key-hint span {
           display: none;
         }
         .hero-word {
