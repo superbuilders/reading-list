@@ -60,7 +60,7 @@ export function renderApp(root: HTMLElement): void {
       <div class="shelf-shadow"></div>
     </div>
 
-    <div class="shelf-ruler" aria-label="Browse the ${library.length}-book shelf">
+    <div class="shelf-ruler" style="--book-count: ${library.length}" aria-label="Browse the ${library.length}-book shelf">
       <div class="shelf-ruler-line"></div>
       ${shelfTicks}
       <p aria-hidden="true">Hover · drag · arrow keys</p>

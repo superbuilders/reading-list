@@ -301,11 +301,11 @@
       .shelf-ruler {
         position: fixed;
         right: clamp(160px, 15vw, 260px);
-        bottom: 116px;
+        bottom: 47px;
         left: clamp(160px, 15vw, 260px);
         z-index: 20;
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(var(--book-count), minmax(0, 1fr));
         height: 25px;
         pointer-events: none;
         transition:
@@ -349,8 +349,11 @@
       .shelf-ruler p {
         position: absolute;
         right: 0;
-        bottom: -27px;
+        bottom: -24px;
         margin: 0;
+        padding: 4px 7px;
+        border-radius: 6px;
+        background: oklch(98% 0.01 285 / 0.82);
         color: var(--indigo-soft);
         font-size: 0.5rem;
         font-weight: 700;
@@ -385,6 +388,9 @@
         z-index: 2;
         display: block;
         touch-action: none;
+      }
+      body:not(.transit):not(.detail-open) #gl {
+        clip-path: inset(0 0 98px 0);
       }
 
       /* ---------- bottom dock ---------- */

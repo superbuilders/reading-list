@@ -1471,7 +1471,7 @@ function camTo(mode) {
     lookY.t = SLOTS.portrait ? 0 : 0.15;
   } else {
     camX.t = 0;
-    camZ.t = 9.6;
+    camZ.t = 11.15;
     lookX.t = 0;
     lookY.t = 0;
   }
