@@ -399,14 +399,22 @@
         display: flex;
         align-items: flex-end;
         gap: 8px;
+        max-width: min(92vw, 1180px);
         min-height: 72px;
         padding: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-inline: contain;
+        scrollbar-width: none;
         border: 1px solid var(--lavender);
         border-radius: 26px;
         background: oklch(99% 0.008 285 / 0.94);
         box-shadow: var(--shadow-lg);
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
+      }
+      .dock-shell::-webkit-scrollbar {
+        display: none;
       }
       .dock-item {
         --dock-scale: 1;
@@ -645,6 +653,9 @@
         line-height: 0.94;
         letter-spacing: -0.045em;
       }
+      .dp h1.long-title {
+        font-size: clamp(2.45rem, 3.8vw, 4rem);
+      }
       .dp p {
         margin: 24px 0 0;
         color: var(--indigo-soft);
@@ -834,6 +845,9 @@
         }
         .dp h1 {
           font-size: clamp(36px, 9.5vw, 54px);
+        }
+        .dp h1.long-title {
+          font-size: clamp(30px, 7.8vw, 43px);
         }
         .dp p {
           font-size: 15px;

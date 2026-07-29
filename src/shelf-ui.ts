@@ -1,5 +1,6 @@
 type BookSummary = {
   title: string;
+  shortTitle?: string;
   author: string;
 };
 
@@ -7,6 +8,11 @@ const books: BookSummary[] = [
   { title: "The Psychology of Money", author: "Morgan Housel" },
   { title: "The Alchemist", author: "Paulo Coelho" },
   { title: "Born a Crime", author: "Trevor Noah" },
+  ...stripePressBooks.map(({ title, shortTitle, author }) => ({
+    title,
+    shortTitle,
+    author,
+  })),
 ];
 
 export function initializeShelfUi(): void {
@@ -24,7 +30,7 @@ export function initializeShelfUi(): void {
     document.querySelectorAll<HTMLButtonElement>("[data-shelf-index]"),
   );
 
-  let activeIndex = 1;
+  let activeIndex = 3;
 
   const browseTo = (index: number): void => {
     activeIndex = Math.max(0, Math.min(books.length - 1, index));
@@ -40,7 +46,7 @@ export function initializeShelfUi(): void {
     if (!book) return;
 
     activeIndex = index;
-    if (title) title.textContent = book.title;
+    if (title) title.textContent = book.shortTitle || book.title;
     if (author) author.textContent = book.author;
     if (current) current.textContent = String(index + 1).padStart(2, "0");
     if (previous) previous.disabled = index === 0;
@@ -50,6 +56,14 @@ export function initializeShelfUi(): void {
       tick.toggleAttribute(
         "aria-current",
         Number(tick.dataset.shelfIndex) === index,
+      );
+    }
+    for (const dockBook of document.querySelectorAll<HTMLElement>(
+      "[data-book-index]",
+    )) {
+      dockBook.toggleAttribute(
+        "aria-current",
+        Number(dockBook.dataset.bookIndex) === index,
       );
     }
   };
@@ -77,3 +91,4 @@ export function initializeShelfUi(): void {
 
   render(activeIndex);
 }
+import { stripePressBooks } from "./catalog";

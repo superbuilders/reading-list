@@ -1,6 +1,7 @@
 // The WebGL engine is isolated while its dynamic geometry is incrementally typed.
 // @ts-nocheck
 import * as THREE from "three";
+import { stripePressBooks } from "./catalog";
 
 /* =========================================================================
    0. Small utilities
@@ -722,7 +723,9 @@ function paintSpine(x, w, h, cfg) {
   x.rotate(Math.PI / 2);
   x.fillStyle = cfg.spineInk;
   x.font = cfg.spineFont;
-  drawSpaced(x, cfg.title.toUpperCase(), -h * 0.1, 15, 6);
+  const spineTitle = (cfg.shortTitle || cfg.title).toUpperCase();
+  x.font = cfg.spineFont || `${Math.max(24, 43 - spineTitle.length * 0.35)}px Georgia`;
+  drawSpaced(x, spineTitle, -h * 0.1, 15, 4);
   x.globalAlpha = 0.85;
   x.font = "600 25px Arial";
   drawSpaced(x, cfg.author.toUpperCase(), h * 0.325, 9, 4);
@@ -789,6 +792,88 @@ const BOOKS = [
       "https://m.media-amazon.com/images/I/81fh8hPklHL._AC_UF1000,1000_QL80_.jpg",
   },
 ];
+
+function wrapCoverText(x, text, maxWidth) {
+  const words = text.split(/\s+/);
+  const lines = [];
+  let line = "";
+  words.forEach((word) => {
+    const candidate = line ? `${line} ${word}` : word;
+    if (line && x.measureText(candidate).width > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  });
+  if (line) lines.push(line);
+  return lines;
+}
+
+function paintStripePress(x, w, h, cfg) {
+  x.fillStyle = cfg.cover;
+  x.fillRect(0, 0, w, h);
+  x.strokeStyle = cfg.accent;
+  x.lineWidth = 7;
+  x.strokeRect(54, 54, w - 108, h - 108);
+  x.lineWidth = 2;
+  x.strokeRect(72, 72, w - 144, h - 144);
+
+  x.fillStyle = cfg.ink;
+  x.font = "700 24px Arial";
+  drawSpaced(x, "STRIPE PRESS", w / 2, 128, 7);
+
+  x.textAlign = "left";
+  x.font = "700 78px Georgia";
+  const lines = wrapCoverText(x, cfg.title, w - 180);
+  lines.slice(0, 4).forEach((line, index) => {
+    x.fillText(line, 90, 275 + index * 88);
+  });
+  x.font = "600 28px Arial";
+  x.fillText(cfg.author, 92, 310 + Math.min(lines.length, 4) * 88);
+
+  x.strokeStyle = cfg.accent;
+  x.globalAlpha = 0.82;
+  x.lineWidth = 4;
+  for (let ring = 0; ring < 5; ring++) {
+    x.beginPath();
+    const radius = 110 + ring * 42;
+    x.ellipse(
+      w / 2 + Math.sin(ring * 1.9) * 48,
+      h * 0.69 + Math.cos(ring * 1.4) * 34,
+      radius,
+      radius * (0.48 + ring * 0.04),
+      ring * 0.35,
+      0,
+      Math.PI * 2,
+    );
+    x.stroke();
+  }
+  x.globalAlpha = 1;
+  x.fillStyle = cfg.ink;
+  x.font = "700 20px Arial";
+  drawSpaced(x, "A CONSIDERED EDITION", w / 2, h - 105, 5);
+}
+
+stripePressBooks.forEach((book) => {
+  BOOKS.push({
+    id: book.id,
+    title: book.title,
+    shortTitle: book.shortTitle,
+    author: book.author,
+    year: book.year,
+    stars: 5,
+    desc: book.description,
+    front: (x, w, h) => paintStripePress(x, w, h, book),
+    edge: book.ink,
+    backBg: book.cover,
+    backInk: "245,238,222",
+    spineBg: book.cover,
+    spineInk: book.ink,
+    coverURL: null,
+    productURL: book.url,
+  });
+});
 
 /* =========================================================================
    4. Book construction
@@ -1184,7 +1269,7 @@ const state = {
   kbIndex: -1,
 };
 const SLOTS = { hero: [], detail: null, portrait: false };
-let shelfActiveIndex = 1;
+let shelfActiveIndex = 3;
 
 function shelfSlots(activeIndex, portrait) {
   const selected = portrait
@@ -1199,20 +1284,20 @@ function shelfSlots(activeIndex, portrait) {
 
     if (portrait) {
       return {
-        p: [side * (1.2 + (distance - 1) * 0.34), -0.62, -0.12 * distance],
+        p: [side * (1.18 + (distance - 1) * 0.31), -0.62, -0.025 * distance],
         r: [-0.015, 1.36, side * -0.025],
-        s: 1.26,
+        s: 1.2,
       };
     }
 
     return {
       p: [
-        side * (1.72 + (distance - 1) * 0.42),
+        side * (1.12 + (distance - 1) * 0.285),
         -0.54,
-        -0.08 * distance,
+        -0.018 * distance,
       ],
       r: [-0.015, 1.43, side * -0.018],
-      s: 1.28,
+      s: 1.22,
     };
   });
 }
@@ -1397,16 +1482,21 @@ const dpTitle = document.getElementById("dpTitle");
 const dpDesc = document.getElementById("dpDesc");
 const dpStars = document.getElementById("dpStars");
 const dpYear = document.getElementById("dpYear");
+const dpSource = document.getElementById("dpSource");
 const bookLink = document.getElementById("bookLink");
 const audioLink = document.getElementById("audioLink");
 const STAR =
   '<svg viewBox="0 0 24 24" class="CLS"><path d="M12 2.6l2.8 6 6.6.6-5 4.4 1.5 6.5L12 16.7 6.1 20.1l1.5-6.5-5-4.4 6.6-.6z"/></svg>';
 function populatePanel(cfg) {
   dpTitle.textContent = cfg.title;
+  dpTitle.classList.toggle("long-title", cfg.title.length > 28);
   dpDesc.textContent = cfg.desc;
   dpYear.textContent = cfg.year;
+  dpSource.textContent = cfg.productURL ? "Stripe Press" : "Goodreads";
   const query = encodeURIComponent(`${cfg.title} ${cfg.author}`);
-  bookLink.href = `https://www.google.com/search?tbm=bks&q=${query}`;
+  bookLink.href =
+    cfg.productURL || `https://www.google.com/search?tbm=bks&q=${query}`;
+  bookLink.textContent = cfg.productURL ? "View at Stripe" : "Find the book";
   bookLink.setAttribute("aria-label", `Find ${cfg.title} by ${cfg.author}`);
   audioLink.href = `https://www.audible.com/search?keywords=${query}`;
   audioLink.setAttribute(
@@ -1518,6 +1608,18 @@ function selectShelfBook(index) {
   shelfActiveIndex = index;
   state.pillLock = books[index];
   state.kbIndex = index;
+  document.querySelectorAll("[data-book-index]").forEach((item) => {
+    const isCurrent =
+      Number(item.getAttribute("data-book-index")) === shelfActiveIndex;
+    item.toggleAttribute("aria-current", isCurrent);
+    if (isCurrent) {
+      item.scrollIntoView({
+        behavior: RM ? "auto" : "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  });
   computeSlots();
   applyMode();
   window.dispatchEvent(
