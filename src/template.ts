@@ -75,10 +75,10 @@ export function renderApp(root: HTMLElement): void {
           <span class="dock-tooltip" role="tooltip">Reading list</span>
         </button>
         <span class="dock-separator" aria-hidden="true"></span>
-        <span class="dock-key-hint" aria-hidden="true">
-          <kbd>←</kbd>
+        <span class="dock-key-hint">
+          <button type="button" data-browse-previous aria-label="Browse to the previous book">←</button>
           <span>Browse</span>
-          <kbd>→</kbd>
+          <button type="button" data-browse-next aria-label="Browse to the next book">→</button>
         </span>
         <span class="dock-separator" aria-hidden="true"></span>
         <a

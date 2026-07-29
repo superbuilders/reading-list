@@ -1284,7 +1284,7 @@ function shelfSlots(activeIndex, portrait) {
 
     if (portrait) {
       return {
-        p: [side * (1.18 + (distance - 1) * 0.31), -0.62, -0.025 * distance],
+        p: [side * (1.34 + (distance - 1) * 0.42), -0.62, -0.018 * distance],
         r: [-0.015, 1.36, side * -0.025],
         s: 1.2,
       };
@@ -1292,9 +1292,9 @@ function shelfSlots(activeIndex, portrait) {
 
     return {
       p: [
-        side * (1.12 + (distance - 1) * 0.285),
+        side * (1.4 + (distance - 1) * 0.44),
         -0.54,
-        -0.018 * distance,
+        -0.012 * distance,
       ],
       r: [-0.015, 1.43, side * -0.018],
       s: 1.22,

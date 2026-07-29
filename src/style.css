@@ -421,11 +421,12 @@
         text-transform: uppercase;
         white-space: nowrap;
       }
-      .dock-key-hint kbd {
+      .dock-key-hint button {
         display: grid;
         place-items: center;
         width: 27px;
         height: 27px;
+        padding: 0;
         border: 1px solid var(--lavender-strong);
         border-radius: 9px;
         background: var(--paper);
@@ -433,6 +434,28 @@
         font-family: var(--sans);
         font-size: 0.75rem;
         box-shadow: 0 2px 0 var(--lavender);
+        transition:
+          color 140ms var(--ease-state),
+          border-color 140ms var(--ease-state),
+          transform 140ms var(--ease-out);
+      }
+      .dock-key-hint button:hover:not(:disabled),
+      .dock-key-hint button:focus-visible {
+        border-color: var(--alpha-blue);
+        color: var(--alpha-blue);
+        transform: translateY(-1px);
+      }
+      .dock-key-hint button:focus-visible {
+        outline: 2px solid var(--alpha-blue);
+        outline-offset: 2px;
+      }
+      .dock-key-hint button:disabled {
+        opacity: 0.3;
+        cursor: default;
+      }
+      body.transit .dock-key-hint,
+      body.detail-open .dock-key-hint {
+        display: none;
       }
       .dock-item {
         --dock-scale: 1;

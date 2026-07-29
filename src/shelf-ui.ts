@@ -22,10 +22,12 @@ export function initializeShelfUi(): void {
   const inspect = document.querySelector<HTMLButtonElement>(
     "[data-inspect-active]",
   );
-  const previous = document.querySelector<HTMLButtonElement>(
-    "[data-browse-previous]",
+  const previous = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("[data-browse-previous]"),
   );
-  const next = document.querySelector<HTMLButtonElement>("[data-browse-next]");
+  const next = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("[data-browse-next]"),
+  );
   const ticks = Array.from(
     document.querySelectorAll<HTMLButtonElement>("[data-shelf-index]"),
   );
@@ -49,8 +51,12 @@ export function initializeShelfUi(): void {
     if (title) title.textContent = book.shortTitle || book.title;
     if (author) author.textContent = book.author;
     if (current) current.textContent = String(index + 1).padStart(2, "0");
-    if (previous) previous.disabled = index === 0;
-    if (next) next.disabled = index === books.length - 1;
+    previous.forEach((button) => {
+      button.disabled = index === 0;
+    });
+    next.forEach((button) => {
+      button.disabled = index === books.length - 1;
+    });
 
     for (const tick of ticks) {
       tick.toggleAttribute(
@@ -68,8 +74,12 @@ export function initializeShelfUi(): void {
     }
   };
 
-  previous?.addEventListener("click", () => browseTo(activeIndex - 1));
-  next?.addEventListener("click", () => browseTo(activeIndex + 1));
+  previous.forEach((button) => {
+    button.addEventListener("click", () => browseTo(activeIndex - 1));
+  });
+  next.forEach((button) => {
+    button.addEventListener("click", () => browseTo(activeIndex + 1));
+  });
   inspect?.addEventListener("click", () => {
     window.dispatchEvent(
       new CustomEvent("reading-list:open-book", {
