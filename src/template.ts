@@ -71,8 +71,12 @@ export function renderApp(root: HTMLElement): void {
     <nav class="dock" aria-label="Reading list navigation">
       <div class="dock-shell">
         <button class="dock-item dock-home" type="button" data-dock-home aria-label="Return to the full reading list">
-          <span class="dock-brand" aria-hidden="true">R</span>
-          <span class="dock-tooltip" role="tooltip">Reading list</span>
+          <svg class="home-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m4 10.5 8-6.5 8 6.5" />
+            <path d="M6.5 9.5V20h11V9.5" />
+            <path d="M10 20v-6h4v6" />
+          </svg>
+          <span class="dock-tooltip" role="tooltip">Return to shelf</span>
         </button>
         <span class="dock-separator" aria-hidden="true"></span>
         <span class="dock-key-hint">
@@ -82,16 +86,18 @@ export function renderApp(root: HTMLElement): void {
         </span>
         <span class="dock-separator" aria-hidden="true"></span>
         <a
-          class="dock-item"
-          href="https://github.com/Superbuilders/reading-list"
+          class="dock-item dock-alpha"
+          href="https://alpha.school/"
           target="_blank"
           rel="noreferrer"
-          aria-label="View the Reading List source on GitHub"
+          aria-label="Visit Alpha School"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 2.8a9.4 9.4 0 0 0-3 18.3c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .8.1-.7.4-1.1.7-1.3-2.3-.3-4.7-1.1-4.7-5a3.9 3.9 0 0 1 1-2.7 3.6 3.6 0 0 1 .1-2.7s.9-.3 2.8 1a9.7 9.7 0 0 1 5.1 0c2-1.3 2.8-1 2.8-1a3.6 3.6 0 0 1 .1 2.7 3.9 3.9 0 0 1 1 2.7c0 3.9-2.4 4.7-4.7 5 .4.3.7.9.7 1.9v2.7c0 .3.2.6.7.5A9.4 9.4 0 0 0 12 2.8Z" />
-          </svg>
-          <span class="dock-tooltip" role="tooltip">View source</span>
+          <img
+            class="alpha-logo-icon"
+            src="https://alpha.school/wp-content/uploads/2024/04/cropped-2hr-Logos-All_2hr-Learning-Logo-Alpha-192x192.webp"
+            alt=""
+          />
+          <span class="dock-tooltip" role="tooltip">Alpha School</span>
         </a>
       </div>
     </nav>

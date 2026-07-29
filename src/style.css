@@ -513,21 +513,16 @@
         stroke-linecap: round;
         stroke-linejoin: round;
       }
-      .dock-item[href] svg {
-        fill: currentColor;
-        stroke: none;
+      .dock-item .home-icon {
+        width: 25px;
+        height: 25px;
+        stroke-width: 1.8;
       }
-      .dock-brand {
-        display: grid;
-        place-items: center;
+      .alpha-logo-icon {
+        display: block;
         width: 32px;
         height: 32px;
-        border-radius: 50%;
-        background: var(--alpha-blue);
-        color: white;
-        font-family: var(--serif);
-        font-size: 1.25rem;
-        font-style: italic;
+        object-fit: contain;
       }
       .dock-index {
         position: absolute;
@@ -871,7 +866,7 @@
           height: 32px;
           margin-inline: 0;
         }
-        .dock-brand {
+        .alpha-logo-icon {
           width: 29px;
           height: 29px;
         }
