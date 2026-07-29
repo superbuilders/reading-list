@@ -43,6 +43,13 @@ export function initializeDock(): void {
   for (const button of document.querySelectorAll<HTMLButtonElement>(
     "[data-book-index]",
   )) {
+    button.addEventListener("pointerenter", () => {
+      window.dispatchEvent(
+        new CustomEvent("reading-list:browse-book", {
+          detail: { index: Number(button.dataset.bookIndex) },
+        }),
+      );
+    });
     button.addEventListener("click", () => {
       const index = Number(button.dataset.bookIndex);
       window.dispatchEvent(

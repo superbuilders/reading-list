@@ -13,6 +13,53 @@ export function renderApp(root: HTMLElement): void {
       <p>Three books worth reading—and returning to.</p>
     </div>
 
+    <div class="shelf-masthead" aria-hidden="true">
+      <div>
+        <span>The Reading List</span>
+        <i></i>
+        <span>An interactive library</span>
+      </div>
+      <div class="shelf-edition">
+        <span>03 volumes</span>
+        <span>01 considered shelf</span>
+      </div>
+    </div>
+
+    <section class="browse-caption" aria-live="polite">
+      <p class="browse-position">
+        <span id="browseCurrent">02</span>
+        <i></i>
+        <span>03</span>
+      </p>
+      <h1 id="browseTitle">The Alchemist</h1>
+      <p class="browse-author" id="browseAuthor">Paulo Coelho</p>
+      <button type="button" class="inspect-volume" data-inspect-active>
+        <span>Inspect volume</span>
+        <span aria-hidden="true">↗</span>
+      </button>
+    </section>
+
+    <button type="button" class="shelf-arrow shelf-arrow-left" data-browse-previous aria-label="Previous book">
+      <span aria-hidden="true">←</span>
+    </button>
+    <button type="button" class="shelf-arrow shelf-arrow-right" data-browse-next aria-label="Next book">
+      <span aria-hidden="true">→</span>
+    </button>
+
+    <div class="shelf-furniture" aria-hidden="true">
+      <div class="shelf-surface"></div>
+      <div class="shelf-edge"></div>
+      <div class="shelf-shadow"></div>
+    </div>
+
+    <div class="shelf-ruler" aria-label="Browse the three-book shelf">
+      <div class="shelf-ruler-line"></div>
+      <button type="button" data-shelf-index="0" aria-label="Browse to The Psychology of Money"><span></span></button>
+      <button type="button" data-shelf-index="1" aria-label="Browse to The Alchemist" aria-current="true"><span></span></button>
+      <button type="button" data-shelf-index="2" aria-label="Browse to Born a Crime"><span></span></button>
+      <p aria-hidden="true">Hover · drag · arrow keys</p>
+    </div>
+
     <canvas id="gl"></canvas>
 
     <nav class="dock" aria-label="Reading list navigation">

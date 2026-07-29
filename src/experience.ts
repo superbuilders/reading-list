@@ -1200,9 +1200,9 @@ function computeSlots() {
         { p: [1.62, -1.1, -0.34], r: [-0.045, -0.42, -0.17], s: 1.39 },
       ]
     : [
-        { p: [-2.06, -1.23, -0.12], r: [-0.045, 0.4, 0.185], s: 1.39 },
-        { p: [0.3, -1.08, 0.6], r: [-0.05, -0.1, -0.035], s: 1.52 },
-        { p: [2.45, -1.41, -0.34], r: [-0.045, -0.42, -0.17], s: 1.39 },
+        { p: [-2.06, -0.58, -0.12], r: [-0.025, 0.34, 0.11], s: 1.34 },
+        { p: [0.3, -0.4, 0.6], r: [-0.035, -0.08, -0.02], s: 1.48 },
+        { p: [2.45, -0.7, -0.34], r: [-0.025, -0.36, -0.1], s: 1.34 },
       ];
 
   if (SLOTS.portrait) {
@@ -1489,6 +1489,13 @@ function close() {
 }
 
 document.getElementById("closeBtn").addEventListener("click", close);
+window.addEventListener("reading-list:browse-book", (event) => {
+  if (state.mode !== "hero") return;
+  const index = Number(event.detail?.index);
+  if (!books[index]) return;
+  state.pillLock = books[index];
+  state.kbIndex = index;
+});
 window.addEventListener("reading-list:open-book", (event) => {
   const index = Number(event.detail?.index);
   const book = books[index];
@@ -1681,6 +1688,7 @@ function castRay() {
 const timer = new THREE.Timer();
 timer.connect(document);
 const idle = RM ? 0 : 1;
+let reportedActiveIndex = 1;
 
 function screenPos(b) {
   b.root.getWorldPosition(tmpV).project(camera);
@@ -1865,6 +1873,17 @@ function animate(timestamp) {
     hov = rayBook === state.selected ? rayBook : null;
   }
   state.hovered = hov;
+  if (state.mode === "hero") {
+    const activeIndex = hov?.index ?? 1;
+    if (activeIndex !== reportedActiveIndex) {
+      reportedActiveIndex = activeIndex;
+      window.dispatchEvent(
+        new CustomEvent("reading-list:active-book", {
+          detail: { index: activeIndex },
+        }),
+      );
+    }
+  }
   let cur = "default";
   if (state.mode === "hero" && hov) cur = "pointer";
   else if (state.mode === "detail" && state.selected) {

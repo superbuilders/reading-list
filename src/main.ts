@@ -1,5 +1,6 @@
 import "./style.css";
 import { initializeDock } from "./dock";
+import { initializeShelfUi } from "./shelf-ui";
 import { renderApp } from "./template";
 
 const root = document.querySelector<HTMLElement>("#app");
@@ -10,5 +11,6 @@ if (!root) {
 
 renderApp(root);
 initializeDock();
+initializeShelfUi();
 
 await import("./experience");
